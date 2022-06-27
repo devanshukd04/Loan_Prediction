@@ -1,0 +1,554 @@
+---
+title: "Loan approval prediction"
+output:
+  html_document:
+    df_print: paged
+---
+
+# import the dataset
+```{r}
+# reading the dataset in csv format and storing it in variable df1
+df1<-read.csv("train1.csv")
+```
+```{r}
+# getting the summary of dataset
+summary(df1)
+```
+```{r}
+# viwe the dataset
+View(df1)
+# import psych library
+library(psych)
+```
+
+```{r}
+# describing the data df1
+describe(df1)
+```
+```{r}
+# getting the names of the columns in the dataset
+colnames(df1)
+```
+```{r}
+# finding the rows in the dataset
+nrow(df1)
+# finding the columns in the dataset
+ncol(df1)
+# finding the diamentions of the dataset
+dim(df1)
+```
+```{r}
+# getting the head values of the dataset
+head(df1)
+```
+# Data Cleaning
+## Removing the ambiguity in Loan_status column
+```{r}
+# getting summary of loan_staus columan
+summary(df1$Loan_Status)
+```
+```{r}
+# finding the unique variables in the loan_status column
+unique(df1$Loan_Status)
+```
+```{r}
+# finding the number of unique variables in the loan_status column
+length(unique(df1$Loan_Status))
+```
+## Removing the ambiguity in Gender column
+```{r}
+# finding the unique variables in the gender column
+# here we can see three variables but only 2 are expected
+unique(df1$Gender)
+```
+```{r}
+# removing the ambiguity in the gender column and make subset of reminang dataset
+df1=subset(df1,df1$Gender!="")
+```
+```{r}
+# finding the unique variables in the gender column
+unique(df1$Gender)
+```
+## Removing the ambiguity in Self_Employed column
+```{r}
+# finding the unique variables in self_employed column
+# here only 2 vaues are expected but oberserve variabels are 3 
+unique(df1$Self_Employed)
+```
+```{r}
+# removing the garbage variables from the dataset
+df1=subset(df1,df1$Self_Employed!="")
+```
+```{r}
+# now check the unique variables in the self_employed column
+unique(df1$Self_Employed)
+```
+## Removing the ambiguity in married column
+```{r}
+# getting the unique variables in the married column
+# here expected variables are two but three variables are observed
+unique(df1$Married)
+```
+```{r}
+# removing the garbage variable form the married column
+df1=subset(df1,df1$Married!="")
+```
+```{r}
+# check the unique valued in the married column
+unique(df1$Married)
+```
+## Removing the ambiguity in Dependants column
+```{r}
+# getting the unique variables in the dependents column
+# here expected variables are two but three variables are observed
+unique(df1$Dependents)
+```
+```{r}
+# removing the garbage variable from the dependent column
+df1=subset(df1,df1$Dependents!="")
+```
+```{r}
+# check the unique variables in the dependant column
+unique(df1$Dependents)
+```
+## Removing the ambiguity in LoanAmount column
+```{r}
+# filling the NA values with the mean of the column
+df1$LoanAmount[is.na(df1$LoanAmount)]<-mean(df1$LoanAmount,na.rm=TRUE)
+
+```
+## Removing the ambiguity in LoanAmount column
+```{r}
+# filling the NA values with the mean of the column
+df1$Loan_Amount_Term[is.na(df1$Loan_Amount_Term)]<-mean(df1$Loan_Amount_Term,na.rm=TRUE)
+```
+## Removing another ambiguities
+```{r}
+# omiting all remaining records which contains NA values
+df1=na.omit(df1)
+```
+# Insights of cleaned Data
+```{r}
+# let's describe the clean data
+describe(df1)
+```
+```{r}
+# Getting the summary of the clean data
+summary(df1)
+```
+```{r}
+# finding the rows in the cleaned dataset
+nrow(df1)
+# finding the columns in the cleaned dataset
+ncol(df1)
+# finding the dimention of the cleaned dataset
+dim(df1)
+```
+# Data Visualisations
+```{r}
+# ploting the graph of male vs female applicants
+barplot(table(df1$Gender),xlab="Gender",ylab="Applicants",main="Male vs Female",col="Green")
+```
+```{r}
+# plotting the graph of married vs un-married applicants
+barplot(table(df1$Married),xlab="Marriage status",ylab="Applicants",main="Married vs Unmarried",col="Green")
+```
+```{r}
+# plotting the graph of no. of dependants
+barplot(table(df1$Dependents),xlab="No. of dependants",ylab="Applicants",main="Dependants",col="Green")
+```
+```{r}
+# plotting the graph of educational level of applicants
+barplot(table(df1$Education),xlab="Education",ylab="Applicants",main="Graduated vs Not Graduated",col="Green")
+```
+```{r}
+# plotting the graph of sef-Employed vs non-self Employed applicants
+barplot(table(df1$Self_Employed),xlab="Self Employed",ylab="Applicants",main="Self Employed vs Non-self Employed ",col="Green")
+```
+
+```{r}
+# plotting the graph of applicant's credit history
+barplot(table(df1$Credit_History),xlab="Creadit History",ylab="Applicants",main="Applicant with Good credit history vs bad ",col="Green")
+```
+```{r}
+# plotting the graph for compare approved vs non approved loans
+barplot(table(df1$Loan_Status),xlab="Loan Status",ylab="Applicants",main="Approved vs non approved loans",col="Green")
+```
+```{r}
+# comparing the urban semi-urban and rural property
+barplot(table(df1$Property_Area),xlab="Area of property",ylab="Applicants",main="Urban vs Rural vs Sub-urban properties",col="Green")
+```
+```{r}
+# knowing the dispersion of applicant income
+boxplot(df1$ApplicantIncome, ylab="Applicant income", main="Applicant income")
+```
+```{r}
+# knowing the dispersion of Co-applicant income
+boxplot(df1$CoapplicantIncome,ylab="Co-applicant income", main="Co-applicant income")
+```
+
+
+# knowing the dispersion of applicant income excluding outliers
+```{r}
+boxplot(df1$ApplicantIncome, ylab="Applicant income", main="Applicant income without outliers",outline=FALSE)
+```
+
+# knowing the dispersion of Co-applicant income excluding outliers
+```{r}
+boxplot(df1$CoapplicantIncome,ylab="Co-applicant income", main="Co-applicant income without outliers",outline=FALSE)
+```
+```{r}
+# getting the corellation bettween each variable
+library(psych)
+pairs.panels(df1)
+```
+```{r}
+
+#install.packages("class")
+library(class)
+#install.packages("caTools")
+library(caTools)
+#partition the data into training and testing sets
+
+```
+
+
+# Model Training
+
+
+```{r}
+library(caTools)
+library(caret)
+#install.packages('kernlab')
+#install.packages("mltools")
+
+a1<-df1
+library(mltools)
+library(data.table)
+
+df=df1[2:12]
+
+# Creating dummy varibles
+dummy <- dummyVars(" ~ .", data=df)
+newdata <- data.frame(predict(dummy, newdata = df1)) 
+df1<-cbind(newdata,df1[13])
+df1$Loan_Status<-as.factor(df1$Loan_Status)
+set.seed(240)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.75)
+head(samplesplit,n=25)
+
+# Train-test splitting
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+```
+## KNN classifier
+```{r}
+# build the KNN classifier over dataset
+knn_classifier<-knn(train=df1_train[,1:20],test=df1_test[,1:20],cl=df1_train$Loan_Status,k=4)
+knn_classifier
+```
+```{r}
+# Confusion matrix for the Knn Classifier
+con_matrix<-table(Actual=df1_test$Loan_Status,Predicted=knn_classifier)
+con_matrix
+```
+```{r}
+# getting the accuracy of KNN classifier
+accuracy<-sum(diag(con_matrix))/sum(con_matrix)*100
+accuracy
+```
+
+```{r}
+df1<-a1
+library(mltools)
+library(data.table)
+
+df=df1[2:12]
+df1$Loan_Status<-as.factor(df1$Loan_Status)
+dummy <- dummyVars(" ~ .", data=df)
+newdata <- data.frame(predict(dummy, newdata = df1)) 
+df1<-cbind(newdata,df1[13])
+
+set.seed(133)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.8)
+head(samplesplit,n=25)
+
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+```
+# naive Bayes Classifier
+
+```{r}
+# Building Naive Bayes classifier over dataset
+library(e1071)
+Naive_classifier <- naiveBayes(x = df1_train[,1:20],y = df1_train$Loan_Status)
+Naive_classifier
+```
+```{r}
+# predicting the test set results
+y_pred <- predict(Naive_classifier, newdata = df1_test[,1:20])
+print(y_pred)
+
+# Confusion matrix for Navie bayes
+con_matrix_bayes <- table(actual=df1_test$Loan_Status, prediction=y_pred)
+print(con_matrix_bayes)
+```
+```{r}
+# Getting the accuracy of Naive Bayes Classifier
+acc_bayes <- sum(diag(con_matrix_bayes)/sum(con_matrix_bayes))
+acc_bayes
+```
+
+```{r}
+library(party)
+library(randomForest)
+df1<-a1
+library(mltools)
+library(data.table)
+
+df=df1[2:12]
+df1$Loan_Status<-as.factor(df1$Loan_Status)
+dummy <- dummyVars(" ~ .", data=df)
+newdata <- data.frame(predict(dummy, newdata = df1)) 
+df1<-cbind(newdata,df1[13])
+
+set.seed(119)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.8)
+head(samplesplit,n=25)
+
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+output.forest <- randomForest(Loan_Status ~ ., data = df1_train,ntree=700,mtry=6)
+
+# View the forest results.
+print(output.forest)
+```
+```{r}
+predTrain <- predict(output.forest, df1_train, type = "class")
+# Checking Training accuracy
+con_matrix<-table(predTrain, df1_train$Loan_Status)  
+print(table(Actual= df1_train$Loan_Status,predicted=predTrain))
+accuracy<-sum(diag(con_matrix))/sum(con_matrix)*100
+accuracy
+
+```
+
+
+```{r}
+pred_train <- predict(output.forest, df1_test, type = "class")
+# Checking Testing accuracy 
+con_matrix<-table(predicted=pred_train, actual=df1_test$Loan_Status)  
+print(table(Actual= df1_test$Loan_Status,predicted=pred_train))
+accuracy<-sum(diag(con_matrix))/sum(con_matrix)*100
+accuracy
+
+```
+##Finding right set of data
+```{r}
+a=0
+df1<-a1
+library(mltools)
+library(data.table)
+df=df1[2:12]
+dummy <- dummyVars(" ~ .", data=df)
+newdata <- data.frame(predict(dummy, newdata = df1)) 
+df1<-cbind(newdata,df1[13])
+df1$Loan_Status<-as.factor(df1$Loan_Status)
+set.seed(133)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.8)
+head(samplesplit,n=25)
+
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+for (x in 1:801){
+  df1<-a1
+library(mltools)
+library(data.table)
+df=df1[2:12]
+dummy <- dummyVars(" ~ .", data=df)
+newdata <- data.frame(predict(dummy, newdata = df1)) 
+df1<-cbind(newdata,df1[13])
+df1$Loan_Status<-as.factor(df1$Loan_Status)
+set.seed(133)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.8)
+head(samplesplit,n=25)
+
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+output.forest <- randomForest(Loan_Status ~ ., data = df1_train,ntree=x,mtry=6)
+pred_train <- predict(output.forest, df1_test, type = "class")
+con_matrix<-table(predicted=pred_train, actual=df1_test$Loan_Status)  
+print(table(Actual= df1_test$Loan_Status,predicted=pred_train))
+accuracy<-sum(diag(con_matrix))/sum(con_matrix)*100
+print(accuracy)
+if(a<accuracy){
+  a=accuracy
+  i=x
+}
+}
+
+```
+
+#Hyperparamter tuning
+```{r}
+a=0
+#install.packages("mltools")
+df1<-a1
+df1$Loan_Status<-as.factor(df1$Loan_Status)
+library(mltools)
+library(data.table)
+df=df1[2:12]
+dummy <- dummyVars(" ~ .", data=df)
+newdata <- data.frame(predict(dummy, newdata = df1)) 
+df1<-cbind(newdata,df1[13])
+
+set.seed(133)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.8)
+head(samplesplit,n=25)
+
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+library(party)
+library(randomForest)
+for (x in 1:801){
+output.forest <- randomForest(Loan_Status ~ ., data = df1_train,ntree=x,mtry=6)
+pred_train <- predict(output.forest, df1_test, type = "class")
+# Checking classification accuracy
+con_matrix<-table(predicted=pred_train, actual=df1_test$Loan_Status)  
+print(table(Actual= df1_test$Loan_Status,predicted=pred_train))
+accuracy<-sum(diag(con_matrix))/sum(con_matrix)*100
+print(accuracy)
+if(a<accuracy){
+  a=accuracy
+  i=x
+}
+}
+```
+
+
+```{r}
+a
+i
+```
+
+
+```{r}
+
+set.seed(133)
+samplesplit<-sample.split(df1$Loan_Status,SplitRatio = 0.8)
+df1_train<-subset(df1,samplesplit==TRUE)
+df1_test<-subset(df1,samplesplit==FALSE)
+output.forest <- randomForest(Loan_Status ~ ., data = df1_train,ntree=109,mtry=6)
+pred_train <- predict(output.forest, df1_test, type = "class")
+# Checking classification accuracy
+con_matrix<-table(pred_train, df1_test$Loan_Status)  
+print(table(Actual= df1_test$Loan_Status,predicted=pred_train))
+accuracy<-sum(diag(con_matrix))/sum(con_matrix)*100
+print(accuracy)
+```
+
+
+```{r}
+t<-table(pred_train, df1_test$Loan_Status)  
+ac1=sum(diag(t))/sum(t)
+sensitivity<-t[2,2]/sum(t[2,])
+specificity<-t[1,1]/sum(t[1,])
+precision<-t[2,2]/sum(t[,2])
+cat("1. The Accuracy of the  Model is:",ac1)
+cat("\n2. The Sensitivity of the  Model is:",sensitivity)
+cat("\n3. The Specifity of the  Model is:",specificity)
+cat("\n4. The Precision of the  Model is:",precision)
+```
+
+
+
+
+
+```{r}
+cat("Enter 1 for yes\n0 for no")
+r=readline(prompt="Enter the gender:")
+if(r=="Female"){
+df1_test[1,1]=1
+df1_test[1,2]=0
+}else{
+df1_test[1,1]=0
+df1_test[1,2]=1
+}
+r=readline(prompt="Enter are you married:")
+if(r=="1"){
+df1_test[1,3]=0
+df1_test[1,4]=1
+}else{
+df1_test[1,3]=1
+df1_test[1,4]=0
+}
+r=readline(prompt="Enter the number of dependents:")
+if(r=="0"){
+df1_test[1,5]=1
+df1_test[1,6]=0
+df1_test[1,7]=0
+df1_test[1,8]=0
+}else if(r=="1"){
+df1_test[1,5]=0
+df1_test[1,6]=1
+df1_test[1,7]=0
+df1_test[1,8]=0
+}else if(r=="2"){
+df1_test[1,5]=0
+df1_test[1,6]=0
+df1_test[1,7]=1
+df1_test[1,8]=0
+}else{
+df1_test[1,5]=0
+df1_test[1,6]=0
+df1_test[1,7]=0
+df1_test[1,8]=1
+}
+r=readline(prompt="Enter are you graduate:")
+if(r=="1"){
+df1_test[1,9]=1
+df1_test[1,10]=0
+}else{
+df1_test[1,9]=0
+df1_test[1,10]=1
+}
+r=readline(prompt="Enter are you self-employed:")
+if(r=="1"){
+df1_test[1,11]=0
+df1_test[1,12]=1
+}else{
+df1_test[1,11]=1
+df1_test[1,12]=0
+}
+df1_test[1,13]=as.integer(readline(prompt="Enter ApplicantIncome:"))
+df1_test[1,14]=as.integer(readline(prompt="Enter CoapplicantIncome:"))
+df1_test[1,15]=as.integer(readline(prompt="Enter LoanAmount in thousands:"))
+df1_test[1,16]=as.integer(readline(prompt="Enter Loan_Amount_Term in months:"))
+df1_test[1,17]=as.integer(readline(prompt="Enter Credit_History:"))
+cat("Menu\n1.)Enter 1 for Rural\n2.)Enter 2 for Semiurban\n3.)Enter 3 for Urban")
+r=readline(prompt="Enter Property_Area:")
+if(r=="1"){
+df1_test[1,18]=1
+df1_test[1,19]=0
+df1_test[1,20]=0
+}else if(r=="2"){
+df1_test[1,18]=0
+df1_test[1,19]=1
+df1_test[1,20]=0
+}else{
+df1_test[1,18]=0
+df1_test[1,19]=0
+df1_test[1,20]=1
+}
+pred_train <- predict(output.forest, df1_test[1,], type = "class")
+pred_train
+if(pred_train=="N"){
+  cat("You will not get loan")
+}else{
+  cat("You will get loan")
+}
+```
+
+
+
+
